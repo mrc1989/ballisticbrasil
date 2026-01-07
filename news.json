@@ -1,0 +1,21 @@
+{
+  "appnews": {
+    "appid": 296300,
+    "newsitems": [
+      {
+        "gid": "1",
+        "title": "BALLISTIC OVERKILL IS BACK",
+        "url": "",
+        "is_external_url": false,
+        "author": "Community",
+        "contents": "[h1]Welcome back[/h1]\n[list][*]Servers online[*]Discord active[/list]",
+        "feedlabel": "Community",
+        "date": 1735689600,
+        "feedname": "community",
+        "feed_type": 1,
+        "appid": "296300"
+      }
+    ],
+    "count": 1
+  }
+}
