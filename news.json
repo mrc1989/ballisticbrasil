@@ -4,11 +4,11 @@
     "newsitems": [
       {
         "gid": "1",
-        "title": "BALLISTIC OVERKILL IS BACK",
+        "title": "BALLISTIC OVERKILL v.1.5.8",
         "url": "",
         "is_external_url": false,
         "author": "Community",
-        "contents": "[h1]OI, AMIGUINHOS![/h1]\nMENSAGEM DE TESTE... 1, 2, 3!!! :D",
+        "contents": "<div align='center'>[h1]OI, AMIGUINHOS![/h1]\nMENSAGEM DE TESTE... 1, 2, 3!!! :D</div>",
         "feedlabel": "Community",
         "date": 1735689600,
         "feedname": "community",
