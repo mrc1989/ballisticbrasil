@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ranking Ballistic Brasil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.40.0/css/all.min.css"/>
+    <script crossorigin="anonymous" src="https://kit.fontawesome.com/b74cce8455.js"></script>
+    <style>
+        /* Estilos gerais */
+        html, body {
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            background-color: transparent;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            height: 100%;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+            min-height: 0;
+        }
+
+        /* Dropdown Customizado */
+        .custom-select-wrapper {
+            position: relative;
+            width: 261px;
+            margin-bottom: 20px;
+        }
+
+        .custom-select__trigger span,
+        .custom-select__trigger .arrow {
+            transition: color 0.3s ease;
+        }
+
+        .custom-select:hover .custom-select__trigger span,
+        .custom-select:hover .custom-select__trigger .arrow {
+            color: #e61728;
+        }
+
+        .custom-select {
+            position: relative;
+            background: rgba(0, 0, 0, 0);
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select:hover {
+            /*background: rgba(230, 23, 40, 0.8);*/
+        }
+
+        .custom-select__trigger {
+            position: relative;
+            padding: 12px 16px;
+            color: white;
+        }
+
+        .custom-select__trigger .arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-size: 12px;
+            transition: transform 0.3s, color 0.3s ease;
+        }
+
+        .custom-select.open .arrow {
+            transform: translateY(-50%) rotate(-180deg);
+        }
+
+        .custom-options {
+            position: absolute;
+            display: none;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 12px 12px 12px 12px;
+            overflow: hidden;
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .custom-select.open .custom-options {
+            display: block;
+        }
+
+        .custom-option {
+            position: relative;
+            padding: 12px 16px;
+            color: white;
+            transition: all 0.3s;
+            font-weight: 400;
+        }
+
+        .custom-option:hover {
+            background: #e61728;
+            cursor: pointer;
+        }
+
+        .custom-option.selected {
+            background: #e61728;
+            font-weight: 600;
+        }
+
+        /* Estilos da tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+            vertical-align: middle;
+        }
+
+        th {
+            color: #e61728;
+            background-color: transparent;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(68, 68, 68, 0.1);
+        }
+
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .first-place {
+            background-color: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+        }
+
+        .second-place {
+            background-color: rgba(192, 192, 192, 0.1);
+            color: #c0c0c0;
+        }
+
+        .third-place {
+            background-color: rgba(205, 127, 50, 0.1);
+            color: #cd7f32;
+        }
+
+        .medal-img {
+            width: 28px;
+            vertical-align: middle;
+        }
+
+        .rank-medal-img {
+            width: 28px;
+            vertical-align: middle;
+        }
+
+        .player-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 600px) {
+            .player-name {
+                max-width: 180px;
+            }
+        }
+
+        .player-avatar {
+            width: 32px;
+            border-radius: 50%;
+            vertical-align: middle;
+        }
+
+        a.player-name {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        a.player-name:hover {
+            text-decoration: underline;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #b3b3b3;
+            border-top: 3px solid #e61728;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .star {
+            animation: glow 1s infinite alternate;
+            display: inline-block;
+            cursor: pointer;
+            position: relative;
+            text-decoration: none;
+            margin-left: 6px;
+        }
+
+        @keyframes glow {
+            0% {
+                color: #ffd700;
+                text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 20px #ffd700;
+            }
+            100% {
+                color: #ffeb3b;
+                text-shadow: 0 0 10px #ffeb3b, 0 0 20px #ffeb3b, 0 0 40px #ffeb3b;
+            }
+        }
+
+        .star::after {
+            content: "Doador";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .star:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .medal-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .medal-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+        }
+
+        .medal-tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Classes para nomes completos/abreviados */
+        .player-name-full {
+            display: inline;
+        }
+
+        .player-name-short {
+            display: none;
+        }
+
+        /* Estilos para telas pequenas (celulares) */
+        @media (max-width: 600px) {
+            th:nth-child(2), td:nth-child(2), /* Avatar */
+            th:nth-child(3), td:nth-child(3) { /* Rank */
+                display: none;
+            }
+
+            .player-name {
+                max-width: 150px;
+            }
+
+            .player-name-full {
+                display: none;
+            }
+            
+            .player-name-short {
+                display: inline;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 6px;
+            }
+
+            .medal-img, .rank-medal-img {
+                width: 20px;
+            }
+
+            .player-avatar {
+                width: 24px;
+            }
+
+            /* Ajustes para o dropdown em mobile */
+            .custom-select-wrapper {
+                width: 100%;
+            }
+
+            .custom-select__trigger {
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <!-- Dropdown Customizado -->
+        <div class="custom-select-wrapper">
+            <div class="custom-select" id="customSelect">
+                <div class="custom-select__trigger">
+                    <i class="fas fa-ranking-star fa-lg fa-fw" style="color: #e61728; margin-right: 6px;"></i><span>Temporada 2</span>
+                    <div class="arrow">▲</div>
+                </div>
+                <div class="custom-options">
+                    <div class="custom-option" data-value="current">Temporada 2</div>
+                    <div class="custom-option" data-value="season1">Temporada 1</div>
+                    <div class="custom-option" data-value="season0">Temporada 0</div>
+                    <div class="custom-option" data-value="all">Todas as Temporadas</div>
+                </div>
+            </div>
+            <!-- Select original (escondido) -->
+            <select id="seasonSelector" style="display:none">
+                <option value="current">Temporada 2</option>
+                <option value="season1">Temporada 1</option>
+                <option value="season0">Temporada 0</option>
+                <option value="all">Todas as Temporadas</option>
+            </select>
+        </div>
+
+        <div class="loading" id="loading"></div>
+
+        <table id="rankingTable" aria-label="Tabela de ranking">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Avatar</th>
+                    <th>Rank</th>
+                    <th>Nome</th>
+                    <th>Pontos</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        //const proxyUrl = 'https://api.allorigins.win/raw?url=';
+        const proxyUrl = 'https://ds3.hospedam.com/~smipysjg/proxy.php?url=';
+        const SECRET_KEY = 'k7TQp8F3YwMZc9J2H6AReXVB5LNdU0mK';
+
+        // URLs dos arquivos TXT para cada temporada
+        const seasonUrls = {
+            current: [
+                `http://136.248.68.132:8000/leaderboard.txt?key=${SECRET_KEY}`
+            ],
+            all: [
+                `http://136.248.68.132:8000/leaderboard.txt?key=${SECRET_KEY}`,
+                `http://136.248.68.132:8000/seasons/season1.txt?key=${SECRET_KEY}`,
+                `http://136.248.68.132:8000/seasons/season0.txt?key=${SECRET_KEY}`
+            ],
+            season1: [
+                `http://136.248.68.132:8000/seasons/season1.txt?key=${SECRET_KEY}`
+            ],
+            season0: [
+                `http://136.248.68.132:8000/seasons/season0.txt?key=${SECRET_KEY}`
+            ]
+        };
+
+        // Inicializa caches a partir do sessionStorage
+        const avatarCache = JSON.parse(sessionStorage.getItem('avatarCache')) || {};
+        const failedAvatars = new Set(JSON.parse(sessionStorage.getItem('failedAvatars')) || []);
+
+        // Funções para o dropdown customizado
+        document.addEventListener('DOMContentLoaded', function() {
+            const customSelect = document.getElementById('customSelect');
+            const options = document.querySelectorAll('.custom-option');
+            const realSelect = document.getElementById('seasonSelector');
+            
+            // Abre/fecha dropdown
+            customSelect.addEventListener('click', function(e) {
+                if (e.target.closest('.custom-option')) return;
+                this.classList.toggle('open');
+            });
+
+            // Seleciona opção
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.textContent;
+                    
+                    // Atualiza visual
+                    document.querySelector('.custom-select__trigger span').textContent = text;
+                    customSelect.classList.remove('open');
+                    
+                    // Atualiza select real
+                    realSelect.value = value;
+                    
+                    // Dispara evento change
+                    const event = new Event('change');
+                    realSelect.dispatchEvent(event);
+                    
+                    // Atualiza a opção selecionada visualmente
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+
+            // Fecha ao clicar fora
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.custom-select-wrapper')) {
+                    customSelect.classList.remove('open');
+                }
+            });
+            
+            // Marca a opção inicial como selecionada
+            const initialOption = document.querySelector(`.custom-option[data-value="${realSelect.value}"]`);
+            if (initialOption) {
+                initialOption.classList.add('selected');
+            }
+        });
+
+        // Retorna imagem da medalha para o rank da tabela
+        function getRankMedalImage(rank) {
+            if (rank === 1) return '<img src="https://ds3.hospedam.com/~smipysjg/gold.png" class="rank-medal-img" alt="1º Lugar">';
+            if (rank === 2) return '<img src="https://ds3.hospedam.com/~smipysjg/silver.png" class="rank-medal-img" alt="2º Lugar">';
+            if (rank === 3) return '<img src="https://ds3.hospedam.com/~smipysjg/bronze.png" class="rank-medal-img" alt="3º Lugar">';
+            return rank;
+        }
+
+        // Retorna medalha por pontos
+        function getMedalImage(pontos) {
+            let nivel, tooltipText;
+
+            if (pontos <= 250) {
+                nivel = 0; tooltipText = "Sem Rank";
+            } else if (pontos <= 750) {
+                nivel = 1; tooltipText = "Bronze";
+            } else if (pontos <= 1500) {
+                nivel = 2; tooltipText = "Prata";
+            } else if (pontos <= 3000) {
+                nivel = 3; tooltipText = "Ouro";
+            } else if (pontos <= 5000) {
+                nivel = 4; tooltipText = "Platina";
+            } else if (pontos <= 7500) {
+                nivel = 5; tooltipText = "Diamante";
+            } else if (pontos <= 10000) {
+                nivel = 6; tooltipText = "Mestre";
+            } else if (pontos <= 15000) {
+                nivel = 7; tooltipText = "Agente";
+            } else {
+                nivel = 8; tooltipText = "Elite";
+            }
+
+            return `<div class="medal-tooltip" data-tooltip="${tooltipText}">
+                        <img src="https://ds3.hospedam.com/~smipysjg/medals/${nivel}.png" class="medal-img" alt="${tooltipText}">
+                    </div>`;
+        }
+
+        async function getAvatar(steamid) {
+            // Se já está no cache, retorna
+            if (avatarCache[steamid]) {
+                // Remove da lista de falhas se estiver lá
+                if (failedAvatars.has(steamid)) {
+                    failedAvatars.delete(steamid);
+                    sessionStorage.setItem('failedAvatars', JSON.stringify(Array.from(failedAvatars)));
+                }
+                return avatarCache[steamid];
+            }
+            
+            const apiKey = '87F0638E9322F06BCAFDAC544682B0A2';
+            const apiUrl = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamid}`;
+
+            try {
+                const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const data = await response.json();
+                const players = data.response?.players;
+                
+                if (!players || players.length === 0) {
+                    throw new Error('Perfil não encontrado');
+                }
+                
+                const avatarUrl = players[0].avatar;
+                if (!avatarUrl) {
+                    throw new Error('Avatar não disponível');
+                }
+                
+                // Atualiza cache
+                avatarCache[steamid] = avatarUrl;
+                sessionStorage.setItem('avatarCache', JSON.stringify(avatarCache));
+                
+                // Remove de falhas se estiver lá
+                if (failedAvatars.has(steamid)) {
+                    failedAvatars.delete(steamid);
+                    sessionStorage.setItem('failedAvatars', JSON.stringify(Array.from(failedAvatars)));
+                }
+                
+                return avatarUrl;
+            } catch (e) {
+                console.error(`Erro ao buscar avatar ${steamid}:`, e);
+                // Adiciona/atualiza lista de falhas
+                failedAvatars.add(steamid);
+                sessionStorage.setItem('failedAvatars', JSON.stringify(Array.from(failedAvatars)));
+                return null;
+            }
+        }
+
+        // Formata nome, mostrando abreviação se necessário
+        function formatarNome(nome) {
+            const maxCaracteres = 26;
+            if (nome.length > maxCaracteres) {
+                return `<span class="player-name-full">${nome}</span><span class="player-name-short">${nome.substring(0, maxCaracteres - 3)}...</span>`;
+            }
+            return `<span class="player-name-full">${nome}</span><span class="player-name-short">${nome}</span>`;
+        }
+
+        async function fetchWithRetry(url, retries = 3, delay = 500) {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const response = await fetch(proxyUrl + encodeURIComponent(url));
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const text = await response.text();
+                    return text;
+                } catch (e) {
+                    console.warn(`Tentativa ${attempt} falhou para ${url}:`, e);
+                    if (attempt < retries) {
+                        await new Promise(res => setTimeout(res, delay));
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
+
+        // Função que soma as temporadas e gera ranking combinado
+        async function loadLeaderboard() {
+            const loadingDiv = document.getElementById('loading');
+            loadingDiv.style.display = 'block';
+            loadingDiv.textContent = '';
+
+            const tbody = document.querySelector('#rankingTable tbody');
+            tbody.innerHTML = '';
+
+            const selectedSeason = document.getElementById('seasonSelector').value;
+            const urls = seasonUrls[selectedSeason] || seasonUrls.all;
+
+            console.log(`Carregando temporada: ${selectedSeason}`);
+            console.log(`URLs: ${urls.join(', ')}`);
+
+            // Objeto para acumular pontos dos jogadores { steamid: { jogador, pontos, partidas, kills } }
+            const combinedPlayers = {};
+
+            try {
+                for (const url of urls) {
+                    console.log(`Carregando: ${url}`);
+                    const text = await fetchWithRetry(url, 3, 500);
+                    
+                    // Log para debug - mostra as primeiras linhas
+                    const lines = text.split('\n');
+                    console.log(`Arquivo ${url} tem ${lines.length} linhas`);
+                    
+                    // Mostra as 5 primeiras linhas para debug
+                    for (let i = 0; i < Math.min(5, lines.length); i++) {
+                        console.log(`Linha ${i}: ${lines[i]}`);
+                    }
+
+                    // Limita a 100 jogadores para cada temporada individual
+                    const limit = 100;
+                    for (let i = 2; i < lines.length && i < limit + 2; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        console.log(`Processando linha ${i}: ${line}`);
+                        
+                        // Regex para o formato: "1. Nome do Jogador - 100, 50, 1500, 76561198000000000"
+                        const match = line.match(/^(\d+)\.\s+(.*?)\s+-\s+(\d+),\s*(\d+),\s*(\d+),\s*(\d+)$/);
+                        
+                        if (!match) {
+                            console.log(`Regex não encontrou match para: ${line}`);
+                            continue;
+                        }
+
+                        console.log(`Match encontrado:`, match);
+                        
+                        const rank = parseInt(match[1]);
+                        let jogador = match[2].trim();
+                        const partidas = parseInt(match[3]);
+                        const kills = parseInt(match[4]);
+                        const pontos = parseInt(match[5]);
+                        const steamid = match[6];
+
+                        // Remove hífen final se existir (mas preserva hífens no meio do nome)
+                        jogador = jogador.replace(/\s+-\s*$/, '').trim();
+                        
+                        console.log(`Jogador: ${jogador}, SteamID: ${steamid}, Pontos: ${pontos}`);
+                        
+                        if (!combinedPlayers[steamid]) {
+                            combinedPlayers[steamid] = { jogador, pontos, partidas, kills };
+                        } else {
+                            combinedPlayers[steamid].pontos += pontos;
+                            combinedPlayers[steamid].partidas += partidas;
+                            combinedPlayers[steamid].kills += kills;
+                        }
+
+                        // Ajuste nome para steamid específico
+                        if (steamid === '76561198870737234') {
+                            combinedPlayers[steamid].jogador = 'ConStanTino';
+                        }
+                    }
+                }
+
+                // Converte para array e ordena por pontos
+                const playersArray = Object.entries(combinedPlayers).map(([steamid, data]) => ({
+                    steamid,
+                    jogador: data.jogador,
+                    pontos: data.pontos,
+                    partidas: data.partidas,
+                    kills: data.kills,
+                }));
+
+                playersArray.sort((a, b) => b.pontos - a.pontos);
+
+                console.log(`Total de jogadores únicos: ${playersArray.length}`);
+                console.log(`Top 5 jogadores:`, playersArray.slice(0, 5));
+
+                // Limita a 100 jogadores no ranking final
+                const limitedPlayers = playersArray.slice(0, 100);
+
+                // Renderiza tabela
+                for (const [index, player] of limitedPlayers.entries()) {
+                    const rank = index + 1;
+                    let rowClass = '';
+                    if (rank === 1) rowClass = 'first-place';
+                    else if (rank === 2) rowClass = 'second-place';
+                    else if (rank === 3) rowClass = 'third-place';
+
+                    const rankMedalImage = getRankMedalImage(rank);
+                    const medalImage = getMedalImage(player.pontos);
+
+                    const specialSteamIDs = ['76561198142319193', '76561198062896859'];
+                    const starLink = specialSteamIDs.includes(player.steamid) 
+                        ? '<a href="https://ballisticbrasiloficial.blogspot.com/p/doar.html" target="_blank" class="star">⭐</a>' 
+                        : '';
+
+                    // Verifica se o avatar já está em cache para mostrar diretamente
+                    const avatarUrl = avatarCache[player.steamid];
+                    const avatarCell = avatarUrl 
+                        ? `<img src="${avatarUrl}" class="player-avatar" alt="Avatar">`
+                        : `<div class="spinner" data-steamid="${player.steamid}"></div>`;
+
+                    const row = `
+                        <tr class="${rowClass}">
+                            <td>${rankMedalImage}</td>
+                            <td>${avatarCell}</td>
+                            <td>${medalImage}</td>
+                            <td>
+                                <a href="https://steamcommunity.com/profiles/${player.steamid}" target="_blank" class="player-name">
+                                    ${formatarNome(player.jogador)}
+                                </a>
+                                ${starLink}
+                            </td>
+                            <td>${player.pontos}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                }
+
+                loadingDiv.style.display = 'none';
+                ajustarAlturaIframe();
+                
+                // Carrega apenas avatares que não estão em cache
+                await loadAvatars();
+                ajustarAlturaIframe();
+
+            } catch (e) {
+                console.error('Erro ao carregar o ranking:', e);
+                loadingDiv.textContent = `Erro ao carregar ${selectedSeason}! Recarregue a página.`;
+                
+                if (e.message.includes('Failed to fetch')) {
+                    loadingDiv.textContent += ' (Problema de conexão)';
+                }
+            }
+        }
+
+        async function loadAvatars() {
+            const spinnerElements = document.querySelectorAll('.spinner[data-steamid]');
+            
+            console.log(`Carregando ${spinnerElements.length} avatares...`);
+            
+            // Primeira tentativa para todos os avatares
+            for (const spinner of spinnerElements) {
+                const steamid = spinner.getAttribute('data-steamid');
+                try {
+                    const avatarUrl = await getAvatar(steamid);
+                    if (avatarUrl) {
+                        spinner.outerHTML = `<img src="${avatarUrl}" class="player-avatar" alt="Avatar">`;
+                        console.log(`Avatar carregado: ${steamid}`);
+                    } else {
+                        console.log(`Avatar não disponível: ${steamid}`);
+                        // Deixa o spinner girando para tentar novamente depois
+                        // O spinner continuará girando até que o retryFailedAvatarsLoop resolva ou falhe
+                    }
+                } catch (e) {
+                    console.error(`Erro ao carregar avatar ${steamid}:`, e);
+                    // O spinner continua girando para tentar novamente depois
+                }
+                await new Promise(resolve => setTimeout(resolve, 300)); // Pequena pausa entre requisições
+            }
+            
+            // Inicia o processo de tentativas para os que falharam
+            if (failedAvatars.size > 0) {
+                console.log(`${failedAvatars.size} avatares falharam, tentando novamente em background...`);
+                retryFailedAvatarsLoop();
+                //ajustarAlturaIframe();
+            }
+        }
+
+        async function retryFailedAvatarsLoop() {
+            let attempts = 0;
+            const MAX_ATTEMPTS = 10; // Número máximo de rodadas de tentativas
+            
+            while (failedAvatars.size > 0 && attempts < MAX_ATTEMPTS) {
+                attempts++;
+                console.log(`Tentativa ${attempts} - ${failedAvatars.size} avatares pendentes`);
+                
+                // Criamos um array para iterar (não podemos modificar o Set durante a iteração)
+                const currentFailed = Array.from(failedAvatars);
+                
+                for (const steamid of currentFailed) {
+                    try {
+                        const avatarUrl = await getAvatar(steamid);
+                        if (avatarUrl) {
+                            // Procura por linhas que ainda têm spinner para este steamid
+                            const spinners = document.querySelectorAll(`.spinner[data-steamid="${steamid}"]`);
+                            spinners.forEach(spinner => {
+                                spinner.outerHTML = `<img src="${avatarUrl}" class="player-avatar" alt="Avatar">`;
+                            });
+                        }
+                    } catch (e) {
+                        console.error(`Falha ao carregar avatar ${steamid}:`, e);
+                    }
+                    
+                    // Intervalo entre requisições
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                // Intervalo entre rodadas
+                if (failedAvatars.size > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            // Após todas as tentativas, remove spinners restantes e coloca placeholder
+            if (failedAvatars.size > 0) {
+                console.log(`Alguns avatares não carregaram após ${MAX_ATTEMPTS} tentativas`);
+                
+                // Para cada steamid que falhou, substitui o spinner por um avatar padrão
+                failedAvatars.forEach(steamid => {
+                    const spinners = document.querySelectorAll(`.spinner[data-steamid="${steamid}"]`);
+                    spinners.forEach(spinner => {
+                        // Avatar padrão do Steam
+                        spinner.outerHTML = `<img src="https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg" class="player-avatar" alt="Avatar padrão">`;
+                    });
+                });
+                
+                // Limpa a lista de falhas após substituir todos
+                failedAvatars.clear();
+                sessionStorage.setItem('failedAvatars', JSON.stringify(Array.from(failedAvatars)));
+                ajustarAlturaIframe();
+            }
+        }
+
+function ajustarAlturaIframe() {
+    setTimeout(() => {
+        // Pega a posição do ÚLTIMO elemento na página
+        const lastRow = document.querySelector('#rankingTable tbody tr:last-child');
+        
+        if (!lastRow) {
+            window.parent.postMessage(
+                { type: 'ajustar-altura', height: 200 },
+                '*'
+            );
+            return;
+        }
+        
+        // Calcula a altura até o FINAL do último elemento
+        const lastRowRect = lastRow.getBoundingClientRect();
+        const bodyRect = document.body.getBoundingClientRect();
+        
+        // Distância do topo até o BOTTOM do último elemento
+        const distanceFromTop = lastRowRect.bottom - bodyRect.top;
+        
+        // Adiciona um pequeno buffer (5px)
+        const totalHeight = Math.ceil(distanceFromTop) + 5;
+        
+        console.log(`📏 Última linha: bottom=${lastRowRect.bottom}px, top=${bodyRect.top}px`);
+        console.log(`✅ Altura total: ${totalHeight}px`);
+        
+        window.parent.postMessage(
+            { type: 'ajustar-altura', height: totalHeight },
+            '*'
+        );
+    }, 100);
+}
+
+        // Evento para trocar temporada
+        document.getElementById('seasonSelector').addEventListener('change', () => {
+            console.log('Temporada alterada para:', document.getElementById('seasonSelector').value);
+            loadLeaderboard();
+        });
+
+        // Carrega a página inicial
+        window.onload = function() {
+            console.log('Página carregada, iniciando ranking...');
+            loadLeaderboard();
+        };
+
+        window.onresize = () => {
+            ajustarAlturaIframe();
+        };
+    </script>
+</body>
+</html>
